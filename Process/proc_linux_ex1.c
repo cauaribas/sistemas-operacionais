@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 int value = 5;
+char aux;
 
 int main(){
 	pid_t pid;
@@ -12,6 +13,7 @@ int main(){
 	
 	if (pid == 0) { /* child process */
 		value += 15;
+		aux = getchar();
 		return 0;
 	}
 	else if (pid > 0) { /* parent process */
