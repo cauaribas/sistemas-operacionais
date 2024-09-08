@@ -14,22 +14,36 @@
 #include <pthread.h>
 #include <stdio.h>
 
+pthread_mutex_t exclusao_mutua = PTHREAD_MUTEX_INITIALIZER; //LOCK da seção crítica
+
 int sum = 0;
 int const num = 10;
 
 void *thread_input(void *param){
+    pthread_mutex_lock(&exclusao_mutua);
+    
     printf("\nValue to be summed: ");
     scanf("%d", &sum);
+    
+    pthread_mutex_unlock( &exclusao_mutua);
     pthread_exit(0);
 }
 
 void *thread_calculator(void *param){
+    pthread_mutex_lock(&exclusao_mutua);
+    
     sum = sum + num;
+
+    pthread_mutex_unlock( &exclusao_mutua);
     pthread_exit(0);
 }
 
 void *thread_print(void *param){
+    pthread_mutex_lock(&exclusao_mutua);
+    
     printf("\nResult: %d\n", sum);
+
+    pthread_mutex_unlock( &exclusao_mutua);
     pthread_exit(0);
 }
 
@@ -43,13 +57,11 @@ int main(int argc, char *argv[]){
 
     /* create the threads */
     pthread_create(&tid_input,&attr,thread_input,NULL);
-    pthread_join(tid_input,NULL);
     pthread_create(&tid_sum,&attr,thread_calculator,NULL);
-    pthread_join(tid_sum,NULL);
     pthread_create(&tid_print,&attr,thread_print,NULL);
 
     /* now wait for the threads to exit */
-    //pthread_join(tid_input,NULL);
-    //pthread_join(tid_sum,NULL);
+    pthread_join(tid_input,NULL);
+    pthread_join(tid_sum,NULL);
     pthread_join(tid_print,NULL);
 }

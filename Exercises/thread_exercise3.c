@@ -1,43 +1,59 @@
-/**
- * 1. Implemente um sistema em que há três threads que tem a responsabilidade de ler o valor de um sensor e some ao valor de uma variável global e em uma variável local. 
- * Você deve simular a contagem com operação de incremento simples (+=1 ou ++). Print a variável local a cada 1 segundo e incremente a variável a cada 1 segundo. 
- * O programa deve chegar ao fim quando a soma da variável global chegar a 100. Ao fim, você consegue observar qual condição:
- * 1. Todas as threads tem o mesmo valor na variável interna?
- * Não, pois cada thread tem sua variável local e nem todas as threads terão o mesmo valor da variável interna (local) ao final da execução
- * 2. O print da variável global segue um incremento linear?
- * Não, o print da variável global provavelmente não segue um incremento linear por causa da concorrência entre as threads.
- */
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <unistd.h> 
+#include <pthread.h> 
+#include<unistd.h>
 
-#include <pthread.h>
-#include <stdio.h>
-#include <unistd.h>
+#define COUNT_READ 10
+int var_global = 0;
 
-int global = 0;
-
-void *sensor_read(void *arg){
-    int thread_id = *(int*)arg;
-    int local = 0;
-    while(global < 100){
-        local += 1;
-        global += 1;
-        
-        sleep(1);
-        
-        printf("Thread %d - Local: %d\n", thread_id, local);
-        printf("Thread %d - Global: %d\n", thread_id, global);
+void *th_sensor1(void *param){
+    int var_local = 0;
+    while(var_global<COUNT_READ){
+        var_local++;
+        var_global++;
+        usleep(1000*1000);
+        printf("Var local th1: %d\n", var_local);
     }
     pthread_exit(0);
 }
 
-int main(int argc, char *argv[]){
-    pthread_t t1, t2, t3;
-    int id1 = 1, id2 = 2, id3 = 3;
+void *th_sensor2(void *param){
+    int var_local = 0;
+    while(var_global<COUNT_READ){
+        var_local++;
+        var_global++;
+        usleep(1000*1000);
+        printf("Var local th2: %d\n", var_local);
+    }
+    pthread_exit(0);
+}
 
-    pthread_create(&t1,NULL,sensor_read,&id1);
-    pthread_create(&t2,NULL,sensor_read,&id2);
-    pthread_create(&t3,NULL,sensor_read,&id3);
+void *th_sensor3(void *param){
+    int var_local = 0;
+    while(var_global<COUNT_READ){
+        var_global++;
+        var_local++;
+        usleep(1000*1000);
+        printf("Var local th3: %d\n", var_local);
+    }
+    pthread_exit(0);
+}
 
-    pthread_join(t1,NULL);
-    pthread_join(t2,NULL);
-    pthread_join(t3,NULL);
+
+int main(){ 
+    pthread_t th_s1, th_s2, th_s3;
+    pthread_attr_t attr;
+
+    pthread_attr_init(&attr);
+
+    pthread_create(&th_s1, &attr, th_sensor1, NULL);
+    pthread_create(&th_s2, &attr, th_sensor2, NULL);
+    pthread_create(&th_s3, &attr, th_sensor3, NULL);
+
+    pthread_join(th_s1, NULL);
+    pthread_join(th_s2, NULL);
+    pthread_join(th_s3, NULL);
+
+    printf("Var global: %d\n", var_global);
 }
