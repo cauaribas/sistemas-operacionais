@@ -2,7 +2,6 @@
 #include <stdlib.h> 
 #include <unistd.h> 
 #include <pthread.h> 
-#include<unistd.h>
 
 #define COUNT_READ 10
 int var_global = 0;
