@@ -36,31 +36,28 @@ int main()
 
     printf("Conectado ao servidor!\n");
 
-    // while(1){
+    // printf("Entre com o dado a ser enviado: ");
+    fgets(buffer, sizeof(buffer), stdin);
 
-        printf("Entre com o dado a ser enviado: ");
-        fgets(buffer, sizeof(buffer), stdin);
+    // Send data to server
+    if (write(sockfd, buffer, strlen(buffer) + 1) < 0)
+    {
+        perror("Falha em escrever no socket");
+        close(sockfd);
+        return 1;
+    }
 
-        // Send data to server
-        if (write(sockfd, buffer, strlen(buffer) + 1) < 0)
-        {
-            perror("Falha em escrever no socket");
-            close(sockfd);
-            return 1;
-        }
+    // printf("Dado enviado ao servidor.\n");
 
-        // printf("Dado enviado ao servidor.\n");
+    // Read data from server
+    if (read(sockfd, buffer, sizeof(buffer)) < 0)
+    {
+        perror("Falha em ler do socket");
+        close(sockfd);
+        return 1;
+    }
 
-        // Read data from server
-        if (read(sockfd, buffer, sizeof(buffer)) < 0)
-        {
-            perror("Falha em ler do socket");
-            close(sockfd);
-            return 1;
-        }
-
-        printf("Dado recebido: %s\n", buffer);
-    // }
+    printf("Dado recebido: %s\n", buffer);
 
     // Close socket and exit
     close(sockfd);
