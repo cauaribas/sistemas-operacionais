@@ -6,7 +6,7 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-#define NUM_SOCK_PATH "/tmp/num_pipeso"
+#define SOCK_PATH "/tmp/num_pipeso"
 
 int main()
 {
@@ -25,7 +25,7 @@ int main()
     // Connect to server
     memset(&remote, 0, sizeof(remote));
     remote.sun_family = AF_UNIX;
-    strncpy(remote.sun_path, NUM_SOCK_PATH, sizeof(remote.sun_path) - 1);
+    strncpy(remote.sun_path, SOCK_PATH, sizeof(remote.sun_path) - 1);
     len = strlen(remote.sun_path) + sizeof(remote.sun_family);
     if (connect(sockfd, (struct sockaddr *)&remote, len) < 0)
     {
@@ -36,31 +36,28 @@ int main()
 
     printf("Conectado ao servidor!\n");
 
-    // while(1){
+    printf("Entre com o dado a ser enviado: ");
+    // fgets(buffer, sizeof(buffer), stdin);
 
-        printf("Entre com o dado a ser enviado: ");
-        fgets(buffer, sizeof(buffer), stdin);
+    // Send data to server
+    if (write(sockfd, buffer, strlen(buffer) + 1) < 0)
+    {
+        perror("Falha em escrever no socket");
+        close(sockfd);
+        return 1;
+    }
 
-        // Send data to server
-        if (write(sockfd, buffer, strlen(buffer) + 1) < 0)
-        {
-            perror("Falha em escrever no socket");
-            close(sockfd);
-            return 1;
-        }
+    printf("Dado enviado ao servidor.\n");
 
-        // printf("Dado enviado ao servidor.\n");
+    // Read data from server
+    if (read(sockfd, buffer, sizeof(buffer)) < 0)
+    {
+        perror("Falha em ler do socket");
+        close(sockfd);
+        return 1;
+    }
 
-        // Read data from server
-        if (read(sockfd, buffer, sizeof(buffer)) < 0)
-        {
-            perror("Falha em ler do socket");
-            close(sockfd);
-            return 1;
-        }
-
-        printf("Dado recebido: %s\n", buffer);
-    // }
+    printf("Dado recebido: %s\n", buffer);
 
     // Close socket and exit
     close(sockfd);
