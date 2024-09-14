@@ -6,7 +6,7 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-#define SOCK_PATH "/tmp/num_pipeso"
+#define SOCK_PATH "/tmp/number_pipeso"
 
 int main()
 {
@@ -34,7 +34,7 @@ int main()
         return 1;
     }
 
-    printf("Number conectado ao servidor!\n");
+    // printf("Number conectado ao servidor!\n");
 
     // printf("Entre com o dado a ser enviado: ");
     fgets(buffer, sizeof(buffer), stdin);
@@ -47,7 +47,7 @@ int main()
         return 1;
     }
 
-    printf("Dado number enviado ao servidor.\n");
+    // printf("Dado number enviado ao servidor.\n");
 
     // Read data from server
     if (read(sockfd, buffer, sizeof(buffer)) < 0)
