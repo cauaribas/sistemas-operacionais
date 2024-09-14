@@ -6,9 +6,10 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
-#include <ctype.h>
 
-#define THREAD_NUM 4 // Numero de threads na pool 
+#define THREAD_NUM 4 
+#define MAX_CLIENTS 10
+
 #define NUM_SOCK_PATH "/tmp/num_pipeso"
 #define STR_SOCK_PATH "/tmp/str_pipeso"
 
@@ -22,11 +23,12 @@ int taskCount = 0;
 int clientCount = 0;
 
 pthread_mutex_t mutexQueue;
+pthread_mutex_t clientQueue;
 pthread_cond_t condQueue;
 
 void executeTask(Task* task){
 
-    sleep(5);
+    sleep(1);
 
     // Enviar dados de volta ao cliente
     write(task->sockfd, task->buffer, strlen(task->buffer) + 1);
@@ -63,42 +65,30 @@ void* startThread(void* args){
 }
 
 void handleConnection(int sockfd){
-    struct sockaddr_un remote;
-    int len;
     
-    int newsockfd;
-    Task newTask;
-    
-    // Aceitar conexão
-    memset(&remote, 0, sizeof(remote));
-    len = sizeof(remote);
-    newsockfd = accept(sockfd, (struct sockaddr*)&remote, &len);
-    if (newsockfd < 0) {
-        perror("Falha ao aceitar conexão");
-        return;
-    }
-
-    printf("Cliente conectado!\n");
-
     // Ler dados do cliente
     memset(newTask.buffer, 0, sizeof(newTask.buffer));
-    newTask.sockfd = newsockfd;
-    if (read(newsockfd, newTask.buffer, sizeof(newTask.buffer)) < 0) {
+    newTask.sockfd = client_socket;
+    if (read(client_socket, newTask.buffer, sizeof(newTask.buffer)) < 0) {
         perror("Erro ao ler do socket");
-        close(newsockfd);
+        close(client_socket);
         return;
     }
 
     // Enviar a tarefa para a pool de threads
     submitTask(newTask);
+
+    pthread_mutex_lock(&clientQueue);
+    clientCount--;
+    pthread_mutex_unlock(&clientQueue);
 }
 
 int serverSocket(const char* sockpath){
-    int server_sockfd;
+    int server_socket;
     struct sockaddr_un local;
 
-    server_sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (server_sockfd < 0) {
+    server_socket = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (server_socket < 0) {
         perror("Falha ao criar socket");
         return 1;
     }
@@ -109,33 +99,43 @@ int serverSocket(const char* sockpath){
     unlink(local.sun_path);
     int len = strlen(local.sun_path) + sizeof(local.sun_family);
     
-    if (bind(server_sockfd, (struct sockaddr*)&local, len) < 0) {
+    if (bind(server_socket, (struct sockaddr*)&local, len) < 0) {
         perror("Falha ao fazer bind no socket");
-        close(server_sockfd);
+        close(server_socket);
         return 1;
     }
 
-    if (listen(server_sockfd, 5) < 0) {
+    if (listen(server_socket, 5) < 0) {
         perror("Erro ao escutar socket");
-        close(server_sockfd);
+        close(server_socket);
         return 1;
     }
 
-    return server_sockfd;
+    return server_socket;
 }
 
 int main(int argc, char *argv[]){
 
+    // Aceitar conexão
+    memset(&remote, 0, sizeof(remote));
+    len = sizeof(remote);
+    client_socket = accept(sockfd, (struct sockaddr*)&remote, &len);
+    if (client_socket < 0) {
+        perror("Falha ao aceitar conexão");
+        return;
+    }
+
     struct sockaddr_un remote;
-    int str_sockfd, num_sockfd;
+    int str_socket, num_socket, client_socket, len;
     pthread_t threads[THREAD_NUM];
 
     pthread_mutex_init(&mutexQueue, NULL);
+    pthread_mutex_init(&clientQueue, NULL);
     pthread_cond_init(&condQueue, NULL);
 
     // Criar sockets
-    str_sockfd = serverSocket(STR_SOCK_PATH);
-    num_sockfd = serverSocket(NUM_SOCK_PATH);
+    str_socket = serverSocket(STR_SOCK_PATH);
+    num_socket = serverSocket(NUM_SOCK_PATH);
 
     printf("Servidor ouvindo em %s e %s...\n", STR_SOCK_PATH, NUM_SOCK_PATH);
 
@@ -148,15 +148,38 @@ int main(int argc, char *argv[]){
 
     // Aceitando conexões
     while(1){
-        handleConnection(str_sockfd);
-        // handleConnection(num_sockfd); // fix: preciso arrumar para aceitar conexoes de ambos os sockets
+        memset(&remote, 0, sizeof(remote));
+        len = sizeof(remote);
+        client_socket = accept(sockfd, (struct sockaddr*)&remote, &len);
+        if (client_socket < 0) {
+            pthread_mutex_lock(&clientQueue);
+            if(clientCount >= MAX_CLIENTS){
+                pthread_mutex_unlock(&clientQueue);
+                printf("Conexão recusada: número máximo de clientes atingido.\n");
+                continue;
+            }
+            clientCount++;
+            pthread_mutex_unlock(&clientQueue);
+            handleConnection(str_socket);
+        }
+        
+        pthread_mutex_lock(&clientQueue);
+        if(clientCount >= MAX_CLIENTS){
+            pthread_mutex_unlock(&clientQueue);
+            printf("Conexão recusada: número máximo de clientes atingido.\n");
+            continue;
+        }
+        clientCount++;
+        pthread_mutex_unlock(&clientQueue);
+        handleConnection(num_socket);
     }
 
     // Limpar recursos (nunca vai chegar aqui no loop infinito)
-    close(str_sockfd);
-    close(num_sockfd);
+    close(str_socket);
+    close(num_socket);
 
     pthread_mutex_destroy(&mutexQueue);
     pthread_cond_destroy(&condQueue);
+    pthread_cond_destroy(&clientQueue);
     return 0;
 }

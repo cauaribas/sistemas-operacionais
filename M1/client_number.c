@@ -34,10 +34,10 @@ int main()
         return 1;
     }
 
-    printf("Conectado ao servidor!\n");
+    printf("Number conectado ao servidor!\n");
 
-    printf("Entre com o dado a ser enviado: ");
-    // fgets(buffer, sizeof(buffer), stdin);
+    // printf("Entre com o dado a ser enviado: ");
+    fgets(buffer, sizeof(buffer), stdin);
 
     // Send data to server
     if (write(sockfd, buffer, strlen(buffer) + 1) < 0)
@@ -47,7 +47,7 @@ int main()
         return 1;
     }
 
-    printf("Dado enviado ao servidor.\n");
+    printf("Dado number enviado ao servidor.\n");
 
     // Read data from server
     if (read(sockfd, buffer, sizeof(buffer)) < 0)
