@@ -5,12 +5,12 @@ WORD="palavra_teste"  # Defina a palavra que você quer enviar
 
 for ((i = 1; i <= NUM_CLIENTS; i++))
 do
-  echo "Enviando palavra do cliente $i: $WORD" | ./str_consumer & 
+  echo "$WORD" | ./string_consumer & 
 done
 
 for ((i = 1; i <= NUM_CLIENTS; i++))
 do
-  echo "Enviando dados do cliente $i: $i" | ./num_consumer & 
+  echo $i | ./number_consumer & 
 done
 
 wait  # Espera que todos os clientes finalizem antes de sair

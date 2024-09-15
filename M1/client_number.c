@@ -36,7 +36,7 @@ int main()
 
     // printf("Number conectado ao servidor!\n");
 
-    // printf("Entre com o dado a ser enviado: ");
+    printf("Entre com o dado a ser enviado: ");
     fgets(buffer, sizeof(buffer), stdin);
 
     // Send data to server
