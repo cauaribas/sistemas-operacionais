@@ -57,7 +57,7 @@ int main()
         return 1;
     }
 
-    printf("Dado recebido: %s\n", buffer);
+    printf("Dado recebido: %s", buffer);
 
     // Close socket and exit
     close(sockfd);

@@ -4,14 +4,13 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <ctype.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/select.h>
 
 #define THREAD_POOL_SIZE 4
-#define MAX_CLIENTS 10
-
 #define STRING_SOCK_PATH "/tmp/string_pipeso"
 #define NUMBER_SOCK_PATH "/tmp/number_pipeso"
 
@@ -22,11 +21,11 @@ typedef struct Task {
 
 Task taskQueue[256];
 int taskCount = 0;
-int clientCount = 0;
 
 pthread_mutex_t mutexQueue;
-pthread_mutex_t mutexQueue;
 pthread_cond_t condQueue;
+
+struct timespec startTime, endTime;
 
 void executeTask(Task* task){
     task->taskFunction(task->client_socket);
@@ -54,6 +53,7 @@ void* startThread(void* args){
             taskQueue[i] = taskQueue[i + 1];
         }
         taskCount--;
+        // printf("Task removida. Tarefas restantes na fila: %d\n", taskCount);
         pthread_mutex_unlock(&mutexQueue);
         
         executeTask(&task); 
@@ -93,7 +93,7 @@ int startServer(const char* sockpath){
 
 void handleStringConnection(int client_socket){    
     char buffer[1024];
-    sleep(1);
+    // sleep(2);
 
     // Ler dados do cliente
     if (read(client_socket, buffer, sizeof(buffer)) < 0) {
@@ -103,8 +103,7 @@ void handleStringConnection(int client_socket){
     }
 
     // Processa a string recebida e converte para maiúsculas
-    for (int i = 0; i < strlen(buffer); i++)
-    {
+    for (int i = 0; i < strlen(buffer); i++){
         buffer[i] = toupper(buffer[i]);
     }
 
@@ -115,7 +114,7 @@ void handleStringConnection(int client_socket){
 
 void handleNumberConnection(int client_socket){    
     char buffer[1024];
-    sleep(1);
+    // sleep(2);
 
     // Ler dados do cliente
     if (read(client_socket, buffer, sizeof(buffer)) < 0) {
@@ -135,11 +134,25 @@ void handleNumberConnection(int client_socket){
     close(client_socket);
 }
 
-int main(int argc, char* argv[]){
-    
-    pthread_t th_pool[THREAD_POOL_SIZE];
-    int string_socket, number_socket, client_socket, len;
+void acceptConnection(int socket, void (*handler)(int)){
     struct sockaddr_un remote;
+    socklen_t len = sizeof(remote);
+    int client_socket = accept(socket, (struct sockaddr*)&remote, &len);
+    if (client_socket >= 0) {
+        printf("Nova conexão recebida\n");
+        
+        Task t = {
+            .taskFunction = handler, 
+            .client_socket = client_socket
+        };
+
+        submitTask(t);
+    }
+}
+
+int main(int argc, char* argv[]){
+    pthread_t th_pool[THREAD_POOL_SIZE];
+    int string_socket, number_socket, client_socket;
     
     pthread_mutex_init(&mutexQueue, NULL);
     pthread_cond_init(&condQueue, NULL);
@@ -149,12 +162,13 @@ int main(int argc, char* argv[]){
             perror("Failed to create thread");
         }
     }
-
+    
     string_socket = startServer(STRING_SOCK_PATH);
     number_socket = startServer(NUMBER_SOCK_PATH);
 
     printf("Servidor escutando em %s e %s...\n", STRING_SOCK_PATH, NUMBER_SOCK_PATH);
-    // to do: finish seting up both server sockets
+
+    clock_gettime(CLOCK_MONOTONIC, &startTime);
 
     fd_set read_fds;
     int max_fd = (string_socket > number_socket) ? string_socket : number_socket;
@@ -171,41 +185,18 @@ int main(int argc, char* argv[]){
         }
         // Verifica se há conexão no socket de strings
         if(FD_ISSET(string_socket, &read_fds)){
-            // Aceitar conexões no socket de strings
-            memset(&remote, 0, sizeof(remote));
-            len = sizeof(remote);
-            client_socket = accept(string_socket, (struct sockaddr*)&remote, &len);
-            if (client_socket >= 0) {
-                printf("Cliente conectado no socket de strings\n");
-
-                Task t = {
-                    .taskFunction = &handleStringConnection,
-                    .client_socket = client_socket
-                };
-                
-                submitTask(t); 
-            }
+            acceptConnection(string_socket, handleStringConnection);
         }
         // Verifica se há conexão no socket de números
         if(FD_ISSET(number_socket, &read_fds)){
-            // Aceitar conexões no socket de numbers
-            memset(&remote, 0, sizeof(remote));
-            len = sizeof(remote);
-            client_socket = accept(number_socket, (struct sockaddr*)&remote, &len);
-            if (client_socket >= 0) {
-                printf("Cliente conectado no socket de numeros\n");
-
-                Task t = {
-                    .taskFunction = &handleNumberConnection,
-                    .client_socket = client_socket
-                };
-                
-                submitTask(t);
-            }
+            acceptConnection(number_socket, handleNumberConnection);
         }
     }
     
     pthread_mutex_destroy(&mutexQueue);
     pthread_cond_destroy(&condQueue);
+
+    close(string_socket);
+    close(number_socket);
     return 0;
 }
