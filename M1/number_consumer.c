@@ -46,7 +46,7 @@ int main()
         close(sockfd);
         return 1;
     }
-
+    
     // printf("Dado number enviado ao servidor.\n");
 
     // Read data from server

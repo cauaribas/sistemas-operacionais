@@ -10,7 +10,7 @@
 #include <sys/un.h>
 #include <sys/select.h>
 
-#define THREAD_POOL_SIZE 4
+#define THREAD_POOL_SIZE 2
 #define STRING_SOCK_PATH "/tmp/string_pipeso"
 #define NUMBER_SOCK_PATH "/tmp/number_pipeso"
 
@@ -152,7 +152,7 @@ void acceptConnection(int socket, void (*handler)(int)){
 
 int main(int argc, char* argv[]){
     pthread_t th_pool[THREAD_POOL_SIZE];
-    int string_socket, number_socket, client_socket;
+    int string_socket, number_socket;
     
     pthread_mutex_init(&mutexQueue, NULL);
     pthread_cond_init(&condQueue, NULL);
