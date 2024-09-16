@@ -5,7 +5,7 @@ CC = gcc
 CFLAGS = -Wall -pthread
 
 # Executáveis
-EXEC_PRODUCER = named_pipe_producer
+EXEC_PRODUCER = server_producer
 EXEC_STRING = string_consumer
 EXEC_NUMBER = number_consumer
 
@@ -13,15 +13,15 @@ EXEC_NUMBER = number_consumer
 all: $(EXEC_PRODUCER) $(EXEC_STRING) $(EXEC_NUMBER)
 
 # Regra para compilar o produtor
-$(EXEC_PRODUCER): named_pipe_producer.c
+$(EXEC_PRODUCER): named_pipe_server_producer.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 # Regra para compilar o cliente de strings
-$(EXEC_STRING): string_consumer.c
+$(EXEC_STRING): named_pipe_string_consumer.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 # Regra para compilar o cliente de números
-$(EXEC_NUMBER): number_consumer.c
+$(EXEC_NUMBER): named_pipe_number_consumer.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 # Limpar os arquivos compilados
