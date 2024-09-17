@@ -11,7 +11,7 @@
 #include <sys/select.h>
 
 // Constantes
-#define THREAD_POOL_SIZE 16
+#define THREAD_POOL_SIZE 4
 #define STRING_SOCK_PATH "/tmp/string_pipeso"
 #define NUMBER_SOCK_PATH "/tmp/number_pipeso"
 
@@ -141,6 +141,8 @@ void acceptConnection(int socket, void (*handler)(int)){
     socklen_t len = sizeof(remote);
     int client_socket = accept(socket, (struct sockaddr*)&remote, &len);
     if (client_socket >= 0) {
+        printf("Nova conexão estabelecida\n");
+        
         // Cria uma nova tarefa e a submete para o pool de threads
         Task t = {
             .taskFunction = handler, 
