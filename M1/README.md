@@ -1,6 +1,6 @@
 # Análise de Proc. e Threads
 
-Este projeto implementa um servidor multithreaded utilizando pool de threads para processar requisições de clientes. A comunicação entre o servidor e os clientes é feita via utilizando conceitos IPC, o servidor é capaz de processar dois tipos de dados: strings (convertendo-as para maiúsculas) e números (multiplicando-os por dois).
+Este projeto implementa um servidor utilizando pool de threads para processar requisições de clientes. A comunicação entre o servidor e os clientes é feita utilizando conceitos IPC, o servidor é capaz de processar dois tipos de dados: strings (convertendo-as para maiúsculas) e números (multiplicando-os por dois).
 
 ## Compilação
 
