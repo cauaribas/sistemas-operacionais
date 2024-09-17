@@ -6,7 +6,7 @@ Este projeto implementa um servidor multithreaded utilizando pool de threads par
 
 O projeto já contém um arquivo Makefile que compila automaticamente todos os arquivos necessários. Para compilar o projeto, execute o comando:
 
-"make"
+```make```
 
 Este comando gerará os executáveis necessários, incluindo o servidor e os consumidores (clientes de string e de número).
 
@@ -14,7 +14,7 @@ Este comando gerará os executáveis necessários, incluindo o servidor e os con
 
 Após a compilação, o servidor pode ser iniciado com o seguinte comando:
 
-"./server_producer"
+```./server_producer```
 
 O servidor irá escutar em dois sockets Unix, um para strings e outro para números, aguardando conexões de clientes.
 
@@ -22,19 +22,21 @@ O servidor irá escutar em dois sockets Unix, um para strings e outro para núme
 
 Existem duas formas de testar o servidor: conectar um cliente de string ou número, ou conectar múltiplos clientes simultaneamente usando o script "client_connection.sh"
 
-1. Conectar um cliente de String ou Número
+## 1. Conectar um cliente de String ou Número
 Para conectar um cliente de string, utilize o seguinte comando:
 
-"./string_consumer"
+```./string_consumer```
 
 Para conectar um cliente de número, utilize:
 
-"./number_consumer"
+```./number_consumer```
 
 Esses clientes enviarão dados ao servidor, que processará a solicitação e retornará a resposta apropriada.
 
-## Testar Múltiplas Conexões Simultâneas
+## 2. Testar Múltiplas Conexões Simultâneas
 
 Para testar múltiplas conexões ao mesmo tempo, use o script "client_connection.sh". Por padrão, o script conecta vários clientes ao servidor simultaneamente. Para executá-lo, utilize:
 
 ```./client_connection.sh```
+
+Você pode ajustar o número de clientes conectados simultaneamente editando a variável apropriada dentro do arquivo
