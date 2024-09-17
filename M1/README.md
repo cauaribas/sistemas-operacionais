@@ -35,8 +35,8 @@ Esses clientes enviarão dados ao servidor, que processará a solicitação e re
 
 ## 2. Testar Múltiplas Conexões Simultâneas
 
-Para testar múltiplas conexões ao mesmo tempo, use o script "client_connection.sh". Por padrão, o script conecta vários clientes ao servidor simultaneamente. Para executá-lo, utilize:
+Para testar múltiplas conexões ao mesmo tempo, use o script ```client_connection.sh```. Por padrão, o script conecta vários clientes ao servidor simultaneamente. Para executá-lo, utilize:
 
 ```./client_connection.sh```
 
-Você pode ajustar o número de clientes conectados simultaneamente editando a variável apropriada dentro do arquivo
+Você pode ajustar o número de clientes conectados simultaneamente editando a variável apropriada dentro do arquivo.
