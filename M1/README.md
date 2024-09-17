@@ -20,7 +20,7 @@ O servidor irá escutar em dois sockets Unix, um para strings e outro para núme
 
 ## Testando o Servidor
 
-Existem duas formas de testar o servidor: conectar um cliente de string ou número, ou conectar múltiplos clientes simultaneamente usando o script "client_connection.sh"
+Existem duas formas de testar o servidor: conectar um cliente de string ou número, ou conectar múltiplos clientes simultaneamente usando o script ```client_connection.sh```
 
 ## 1. Conectar um cliente de String ou Número
 Para conectar um cliente de string, utilize o seguinte comando:
