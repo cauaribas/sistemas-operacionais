@@ -1,0 +1,6 @@
+  xTaskCreate(TaskMutex, // Task function
+              "Task1", // Task name for humans
+              128, // 128 * 8 (8 bits computer, 128 * 32 for a 32 bit computer)
+              1000, // Task parameter
+              1, // Task priority
+              NULL);
