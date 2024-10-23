@@ -1,0 +1,144 @@
+Memoria Principal:
+
+-> Conceitos
+-> Alocação de memoria continua
+-> Paginação
+-> Estrutura de tabela de paginas
+-> Swapping
+
+Conceitos:
+
+CPU ---> RAM(memoria principal, Main Memory "MM") <---- Programa vem da memoria secundaria (HD, SSD)
+
+A unidade de memoria so ve um fluxo:
+- endereços + solicitações de leitura, ou
+- endereço + dados e solicitações de gravação
+
+Dados vem da memoria RAM para a cache da CPU
+
+- Acesso de registrador eh feito em um clock da CPU (ou menos)
+- A memoria principal pode levar muitos ciclos, causando uma parada
+- O cache fica entre a memoria principal e os registradores da CPU
+
+-=-
+
+Proteção: Protege a memoria
+para que um processo só
+possa acessar os endereços
+em seu espaço de endereço
+
+Qual o motivo de não poder alocar memoria para o processo no endereço fisico 0000?
+- Para não correr risco de sobreescrever dados de outro processo
+
+- Endereços de código-fonte geralmente simbólicos
+--- > Endereços de código compilados se associam a endereços relocáveis
+	Ex: "14 bytes a partir do início deste módulo"
+--- > Linker ou loader vinculará endereços relocáveis a endereços absolutos
+	Ex: 74014
+- Cada ligação mapeia um espaço de endereço para outro
+
+Tempo de compilação: São pre-programados e fixos
+
+Tempo de carregamento: Programas a nivel de usuario
+
+Tempo de execução: Aumento/Redução de vetores (ex: alloc)
+
+-=-
+
+CPU pede para ler um endereço de memoria ficticio (endereço logico)
+
+linkage editor -> -lpthreads, linka a lib ao codigo (imports tbem)
+
+-=-
+
+Espaço de endereço lógico vs. físico
+
+- Endereço lógico – gerado pela CPU; também conhecido como endereço virtual
+- Endereço físico – endereço visto pela unidade de memória
+
+Existe um tradutor de endreços de memoria, dois endereços representam o mesmo endereço de memoria, porem um eh apenas um referencia para o sistema operacional. Abstrai complexidade para o programador e ajuda no enderaçamento de memoria para outros processos.
+
+Memory-Management-Unit (MMU) -> tradutor
+
+- Dispositivo de hardware que, em tempo de execução,
+mapeia o endereço virtual para o físico
+
+CPU -> (logical address) -> MMU -> (physical address) -> physical memory
+
+-=-
+
+Carregamento dinamico:
+
+- Programa eh carregado em partes
+
+Ex: um jogo de 150gb eh carregado em partes
+
+-=-
+
+Linkagem dinamica:
+
+- Vinculação estatica: bibliotecas do sistema e código de programa
+combinados pelo carregador na imagem do programa binário
+
+- Vinculação dinamica: vinculação adiada ate o momento de execução
+
+Alocação continua:
+
+- Facil de implementar, alocação de memoria tem tamanho fixo, porem pode sobrar/faltar memoria para o programa
+
+-=-
+
+Partição variavel: 
+
+- Tamanho variavel de memoria para o programa, tenta encaixar programas em partes da memoria que n estao em uso (buracos de memoria)
+
+- 3 algoritmos de gerencia de memoria
+
+1) first-fit: aloca o primeiro local grande o suficiente
+2) best-fit: aloca o menor local que seja grande o suficiente, deve pesquisar a lista inteira, a
+menos que ordenado por tamanho 
+3) worst-fit: aloca o maior espaço; também deve pesquisar a lista inteira
+
+Obs: First-fit e best-fit são melhores do que worst-fit em termos
+de velocidade e utilização do armazenamento
+
+-=-
+
+Paginação:
+
+- Solução para a fragmentação externa
+
+- Eh como dividir a memoria em paginas de tamanho pre-fixados
+
+- Memoria principal = dividida em paginas
+
+- Processos = divididos em frames
+
+-=-
+
+Esquema de tradução de endereços:
+
+- Divido em duas partes -> numero da pagina e descolamento da pagina(endereço fisico base)
+
+-=-
+
+Para armazenar um programa de 50GB
+
+Tam. de pg = 2048
+
+50.000.000.00 / 2048 = 24.414.062,5 (arredondamos para 24.414.063) paginas
+
+24.414.063 x 64 bits = 1.562.500.032
+
+1.562.500.032 / 8 bytes = 195.312.504 -> quase 200MB para armazenar apenas o sumario do processo  
+
+-=- 
+
+TLB:
+
+- Acesso a TLB custa 1 milisegundo, acesso a MM(main memory) custa 100 milisegundos
+
+-=-
+
+Tarefa: Pesquisar o tipo de esquema de paginação usado ou disponivel no seu processador / S.O -> Encontrar no DataSheet
+
