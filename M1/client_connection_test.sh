@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NUM_CLIENTS=10
+NUM_CLIENTS=100
 WORD="palavra_teste"  # Defina a palavra que você quer enviar
 
 # Medir o tempo de execução das conexões
