@@ -11,7 +11,7 @@
 #include <sys/select.h>
 
 // Constantes
-#define THREAD_POOL_SIZE 4
+#define THREAD_POOL_SIZE 128
 #define STRING_SOCK_PATH "/tmp/string_pipeso"
 #define NUMBER_SOCK_PATH "/tmp/number_pipeso"
 
