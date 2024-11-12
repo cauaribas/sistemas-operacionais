@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <unistd.h>
 
 class Timer
 {
@@ -40,7 +41,7 @@ void FastMeasure()
     printf("Busy waiting to raise the CPU frequency...\n");
     // Busy wait for a second so that the CPUs ramp up to full speed.
     BusyWait(500);
-    const int bufSize = 32 * 1024 * 1024; //MB
+    const int bufSize = 1024 * 1024 * 1024; //MB
     const int iterationCount = 100;
     {
         Timer timer;
@@ -123,6 +124,8 @@ void FastMeasure()
 
 int main(int argc, char* argv[])
 {
+    printf("PID: %d\n", getpid());
+
     FastMeasure();
 
     std::cout << "Pressione Enter para continuar...";
